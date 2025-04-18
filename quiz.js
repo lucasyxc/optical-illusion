@@ -1,3 +1,30 @@
+// 页面切换函数
+function showIntroPage1() {
+    document.getElementById('intro-page1').style.display = 'block';
+    document.getElementById('intro-page2').style.display = 'none';
+    document.getElementById('quiz').style.display = 'none';
+    document.getElementById('result').style.display = 'none';
+}
+
+function showIntroPage2() {
+    document.getElementById('intro-page1').style.display = 'none';
+    document.getElementById('intro-page2').style.display = 'block';
+    document.getElementById('quiz').style.display = 'none';
+    document.getElementById('result').style.display = 'none';
+}
+
+function startQuiz() {
+    document.getElementById('intro-page1').style.display = 'none';
+    document.getElementById('intro-page2').style.display = 'none';
+    document.getElementById('quiz').style.display = 'block';
+    document.getElementById('result').style.display = 'none';
+    currentQuestion = 0;
+    score = 0;
+    answers = new Array(questions.length).fill(null);
+    displayQuestion();
+}
+
+// 问题数据
 const questions = [
     {
         image: '1.jpg',
@@ -159,6 +186,17 @@ function saveAnswer() {
     }
 }
 
+function generatePrizeCode() {
+    const now = new Date();
+    const year = now.getFullYear().toString().slice(-2);
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+    return `JC${year}${month}${day}${hours}${minutes}${seconds}`;
+}
+
 function showResults() {
     score = 0;
     answers.forEach((answer, index) => {
@@ -174,9 +212,92 @@ function showResults() {
     document.getElementById('score').textContent = score;
     document.getElementById('percentage').textContent = (score / questions.length * 100).toFixed(1);
     
+    const prizeInfo = document.getElementById('prizeInfo');
+    let prizeCode = '';
+    
+    if (score >= 7) {
+        prizeCode = generatePrizeCode();
+        prizeInfo.innerHTML = `
+            <div class="congrats">恭喜您答对了${score}道题！</div>
+            <div class="prize-code">您的兑奖号码：${prizeCode}</div>
+            <p>请保存此兑奖号码，到店出示即可领取奖品</p>
+        `;
+    } else {
+        prizeInfo.innerHTML = `
+            <div class="sorry">很遗憾，您答对了${score}道题，未达到兑奖标准</div>
+            <p>不过没关系，您仍然可以扫描下方二维码联系我们，我们会为您解答疑问</p>
+        `;
+    }
+    
+    // 保存答题结果到本地存储
+    const quizResult = {
+        completed: true,
+        score: score,
+        percentage: (score / questions.length * 100).toFixed(1),
+        prizeCode: prizeCode,
+        timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('quizResult', JSON.stringify(quizResult));
+    
     // 更新进度条到100%
     const progress = document.getElementById('progress');
     progress.style.width = '100%';
+}
+
+// 检查本地存储中的答题状态
+function checkQuizStatus() {
+    const savedResult = localStorage.getItem('quizResult');
+    if (savedResult) {
+        const result = JSON.parse(savedResult);
+        if (result.completed) {
+            // 直接显示结果页面
+            document.getElementById('intro-page1').style.display = 'none';
+            document.getElementById('intro-page2').style.display = 'none';
+            document.getElementById('quiz').style.display = 'none';
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            
+            // 显示保存的结果
+            document.getElementById('score').textContent = result.score;
+            document.getElementById('percentage').textContent = result.percentage;
+            
+            const prizeInfo = document.getElementById('prizeInfo');
+            if (result.score >= 7) {
+                prizeInfo.innerHTML = `
+                    <div class="congrats">恭喜您答对了${result.score}道题！</div>
+                    <div class="prize-code">您的兑奖号码：${result.prizeCode}</div>
+                    <p>请保存此兑奖号码，到店出示即可领取奖品</p>
+                `;
+            } else {
+                prizeInfo.innerHTML = `
+                    <div class="sorry">很遗憾，您答对了${result.score}道题，未达到兑奖标准</div>
+                    <p>不过没关系，您仍然可以扫描下方二维码联系我们，我们会为您解答疑问</p>
+                `;
+            }
+            
+            // 显示答题时间
+            const quizTime = new Date(result.timestamp).toLocaleString('zh-CN');
+            prizeInfo.innerHTML += `<p style="color: #666; font-size: 0.9em; margin-top: 10px;">答题时间：${quizTime}</p>`;
+            
+            return true;
+        }
+    }
+    return false;
+}
+
+// 页面加载时检查答题状态
+window.onload = function() {
+    if (!checkQuizStatus()) {
+        showIntroPage1();
+    }
+};
+
+// 添加重新答题功能
+function restartQuiz() {
+    // 清除本地存储
+    localStorage.removeItem('quizResult');
+    // 重新开始答题
+    startQuiz();
 }
 
 // 初始化问卷
