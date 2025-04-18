@@ -1,0 +1,183 @@
+const questions = [
+    {
+        image: '1.jpg',
+        question: '对比两个小球谁更大？',
+        options: ['左下', '右上', '一样'],
+        correct: 2
+    },
+    {
+        image: '2.gif',
+        question: '对比哪根竖线更长？',
+        options: ['左', '右', '一样'],
+        correct: 2
+    },
+    {
+        image: '3.gif',
+        question: '中央的横线和竖线是直的吗？',
+        options: ['是', '不是'],
+        correct: 0
+    },
+    {
+        image: '4.jpg',
+        question: '圆圈是往哪边动的？',
+        options: ['顺时针', '逆时针', '不动'],
+        correct: 2
+    },
+    {
+        image: '5.gif',
+        question: '蓝色面是在正方体的哪边？',
+        options: ['左后', '左前'],
+        correct: 0
+    },
+    {
+        image: '6.gif',
+        question: '大象有几条腿？',
+        options: ['5', '6', '7', '8'],
+        correct: 2
+    },
+    {
+        image: '7.jpg',
+        question: '盯着中央黑点看，周围灰色会消失吗？',
+        options: ['会', '不会'],
+        correct: 0
+    },
+    {
+        image: '8.jpg',
+        question: 'A方块和B方块的颜色一样吗？',
+        options: ['一样', '不一样'],
+        correct: 0
+    },
+    {
+        image: '9.gif',
+        question: '数一数图中有多少个黑点',
+        options: ['1个', '35个', '0个', '34个'],
+        correct: 2
+    },
+    {
+        image: '10.jpg',
+        question: '数一数图中有多少张脸',
+        options: ['10', '11', '12', '13', '16'],
+        correct: 2
+    }
+];
+
+let currentQuestion = 0;
+let score = 0;
+let answers = new Array(questions.length).fill(null);
+
+function displayQuestion() {
+    const form = document.getElementById('quizForm');
+    form.innerHTML = '';
+    
+    const question = questions[currentQuestion];
+    
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question';
+    
+    const img = document.createElement('img');
+    img.src = question.image;
+    img.alt = '视觉错觉图';
+    
+    const questionText = document.createElement('h3');
+    questionText.textContent = `问题 ${currentQuestion + 1}: ${question.question}`;
+    
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'options';
+    
+    question.options.forEach((option, index) => {
+        const label = document.createElement('label');
+        label.className = 'option';
+        
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = 'answer';
+        radio.value = index;
+        if (answers[currentQuestion] === index) {
+            radio.checked = true;
+        }
+        
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(option));
+        optionsDiv.appendChild(label);
+    });
+    
+    const buttonGroup = document.createElement('div');
+    buttonGroup.className = 'button-group';
+    
+    if (currentQuestion > 0) {
+        const prevBtn = document.createElement('button');
+        prevBtn.type = 'button';
+        prevBtn.className = 'btn prev-btn';
+        prevBtn.textContent = '上一题';
+        prevBtn.onclick = () => {
+            saveAnswer();
+            currentQuestion--;
+            displayQuestion();
+        };
+        buttonGroup.appendChild(prevBtn);
+    }
+    
+    if (currentQuestion < questions.length - 1) {
+        const nextBtn = document.createElement('button');
+        nextBtn.type = 'button';
+        nextBtn.className = 'btn next-btn';
+        nextBtn.textContent = '下一题';
+        nextBtn.onclick = () => {
+            saveAnswer();
+            currentQuestion++;
+            displayQuestion();
+        };
+        buttonGroup.appendChild(nextBtn);
+    } else {
+        const submitBtn = document.createElement('button');
+        submitBtn.type = 'button';
+        submitBtn.className = 'btn submit-btn';
+        submitBtn.textContent = '提交答案';
+        submitBtn.onclick = () => {
+            saveAnswer();
+            showResults();
+        };
+        buttonGroup.appendChild(submitBtn);
+    }
+    
+    questionDiv.appendChild(questionText);
+    questionDiv.appendChild(img);
+    questionDiv.appendChild(optionsDiv);
+    questionDiv.appendChild(buttonGroup);
+    
+    form.appendChild(questionDiv);
+    
+    // 更新进度条
+    const progress = document.getElementById('progress');
+    progress.style.width = `${(currentQuestion / questions.length) * 100}%`;
+}
+
+function saveAnswer() {
+    const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+    if (selectedAnswer) {
+        answers[currentQuestion] = parseInt(selectedAnswer.value);
+    }
+}
+
+function showResults() {
+    score = 0;
+    answers.forEach((answer, index) => {
+        if (answer === questions[index].correct) {
+            score++;
+        }
+    });
+    
+    document.getElementById('quizForm').style.display = 'none';
+    const result = document.getElementById('result');
+    result.style.display = 'block';
+    
+    document.getElementById('score').textContent = score;
+    document.getElementById('percentage').textContent = (score / questions.length * 100).toFixed(1);
+    
+    // 更新进度条到100%
+    const progress = document.getElementById('progress');
+    progress.style.width = '100%';
+}
+
+// 初始化问卷
+displayQuestion(); 
