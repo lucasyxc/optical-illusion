@@ -27,64 +27,58 @@ function startQuiz() {
 // 问题数据
 const questions = [
     {
-        image: '1.jpg',
-        question: '对比两个小球谁更大？',
-        options: ['左下', '右上', '一样'],
-        correct: 2
+        image: '111.png',
+        question: '3-4岁儿童的正常视力应达到0.8-1.0。',
+        options: ['对', '错'],
+        correct: 1
     },
     {
-        image: '2.gif',
-        question: '对比哪根竖线更长？',
-        options: ['左', '右', '一样'],
-        correct: 2
+        image: '222.png',
+        question: '4∼5岁的儿童生理屈光度为150∼200度远视，则有150∼200度的远视储备，如果此年龄段儿童的生理屈光度只有50度远视会发生什么？',
+        options: ['没有关系', '提前近视'],
+        correct: 1
     },
     {
-        image: '3.gif',
-        question: '中央的横线和竖线是直的吗？',
-        options: ['是', '不是'],
+        image: '333.png',
+        question: '孩子反映看不清黑板上的字迹，或常常抱怨屋子里的光线太暗是近视的早起症状',
+        options: ['错', '对'],
+        correct: 1
+    },
+    {
+        image: '444.png',
+        question: '正常的远视储备是能够抵御近视的发生',
+        options: ['错', '对'],
+        correct: 1
+    },
+    {
+        image: '555.png',
+        question: '依据下面的表，来判断8岁的孩子应该有多少远视储备',
+        options: ['+1.00—+1.50', '+1.00', '+0.88'],
+        correct: 1
+    },
+    {
+        image: '666.png',
+        question: '近视有可能会导致视网膜脱落、视网膜裂孔、失明？',
+        options: ['错，没有影响', '对，很有可能'],
+        correct: 1
+    },
+    {
+        image: '777.png',
+        question: '户外活动能预防近视吗？',
+        options: ['不能，没有用还费时间', '有用，还可以锻炼身体'],
+        correct: 1
+    },
+    {
+        image: '888.png',
+        question: '上学期间孩子学习负担重，看书、写作业时间长，眼睛很容易疲劳。这种情况如果长期不改善，会影响视力，最终很可能发生近视或近视度数加深？',
+        options: ['对，需要每30分钟休息5-10分钟', '不对，长时间不会有影响'],
         correct: 0
     },
     {
-        image: '4.jpg',
-        question: '圆圈是往哪边动的？',
-        options: ['顺时针', '逆时针', '不动'],
-        correct: 2
-    },
-    {
-        image: '5.gif',
-        question: '蓝色面是在正方体的哪边？',
-        options: ['左后', '左前'],
+        image: '999.png',
+        question: '最长应该多久检查一次眼睛？',
+        options: ['6个月', '1年', '2年'],
         correct: 0
-    },
-    {
-        image: '6.gif',
-        question: '大象有几条腿？',
-        options: ['5', '6', '7', '8'],
-        correct: 2
-    },
-    {
-        image: '7.jpg',
-        question: '盯着中央黑点看，周围灰色会消失吗？',
-        options: ['会', '不会'],
-        correct: 0
-    },
-    {
-        image: '8.jpg',
-        question: 'A方块和B方块的颜色一样吗？',
-        options: ['一样', '不一样'],
-        correct: 0
-    },
-    {
-        image: '9.gif',
-        question: '数一数图中有多少个黑点',
-        options: ['1个', '35个', '0个', '34个'],
-        correct: 2
-    },
-    {
-        image: '10.jpg',
-        question: '数一数图中有多少张脸',
-        options: ['10', '11', '12', '13', '16'],
-        correct: 2
     }
 ];
 
@@ -200,8 +194,15 @@ function generatePrizeCode() {
 function showResults() {
     score = 0;
     answers.forEach((answer, index) => {
-        if (answer === questions[index].correct) {
-            score++;
+        if (answer !== null) {
+            const correctAnswers = questions[index].correct;
+            if (Array.isArray(correctAnswers)) {
+                if (correctAnswers.includes(answer)) {
+                    score++;
+                }
+            } else if (answer === correctAnswers) {
+                score++;
+            }
         }
     });
     
@@ -215,7 +216,7 @@ function showResults() {
     const prizeInfo = document.getElementById('prizeInfo');
     let prizeCode = '';
     
-    if (score >= 7) {
+    if (score >= 6) {
         prizeCode = generatePrizeCode();
         prizeInfo.innerHTML = `
             <div class="congrats">恭喜您答对了${score}道题！</div>
@@ -262,7 +263,7 @@ function checkQuizStatus() {
             document.getElementById('percentage').textContent = result.percentage;
             
             const prizeInfo = document.getElementById('prizeInfo');
-            if (result.score >= 7) {
+            if (result.score >= 6) {
                 prizeInfo.innerHTML = `
                     <div class="congrats">恭喜您答对了${result.score}道题！</div>
                     <div class="prize-code">您的兑奖号码：${result.prizeCode}</div>
