@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>嘉辰眼科-眼健康知识小测试</title>
+    <title>视觉错觉趣味测试</title>
     <style>
         :root {
             --primary-color: #3498db;
@@ -272,7 +272,7 @@
             transition: width 0.3s;
         }
         .qr-code {
-            max-width: 200px;
+            max-width: 100px;
             margin: 20px auto;
             display: block;
         }
@@ -417,6 +417,145 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
+
+        /* 图片展示组件样式 */
+        .store-images {
+            margin: 20px auto;
+            padding: 0 10px;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .image-item {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .image-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.2s ease;
+        }
+
+        .image-item:active img {
+            transform: scale(0.95);
+        }
+
+        /* 预览遮罩层样式 */
+        .preview-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .preview-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .preview-container {
+            width: 90%;
+            height: 90%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .preview-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        /* 移动端优化 */
+        @media screen and (max-width: 480px) {
+            .store-images {
+                margin: 15px auto;
+                padding: 0 5px;
+            }
+
+            .image-grid {
+                gap: 5px;
+                padding: 5px;
+            }
+
+            .image-item {
+                border-radius: 6px;
+            }
+        }
+
+        .map-container {
+            margin: 15px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .map-image {
+            width: 100%;
+            display: block;
+            cursor: pointer;
+        }
+
+        .store-info {
+            margin: 20px 15px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            text-align: left;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .store-info h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .store-info p {
+            color: #666;
+            margin: 8px 0;
+            font-size: 1em;
+        }
+
+        @media screen and (max-width: 480px) {
+            .store-info {
+                margin: 15px 10px;
+                padding: 15px;
+            }
+            
+            .store-info h3 {
+                font-size: 1.1em;
+            }
+            
+            .store-info p {
+                font-size: 0.95em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -428,6 +567,31 @@
             <h2>专业的儿童视力矫正机构</h2>
             <p>我们是一家专业的眼科机构，专注于青少年视力健康，提供全方位的视力矫正服务。采用先进的诊疗技术和设备，为您的视力健康保驾护航。</p>
             
+            <!-- 添加图片展示组件 -->
+            <div class="store-images">
+                <div class="image-grid">
+                    <div class="image-item" onclick="togglePreview(this)">
+                        <img src="门头1.jpg" alt="门店外观" loading="lazy">
+                    </div>
+                    <div class="image-item" onclick="togglePreview(this)">
+                        <img src="内饰2.jpg" alt="门店内饰" loading="lazy">
+                    </div>
+                    <div class="image-item" onclick="togglePreview(this)">
+                        <img src="内饰3.jpg" alt="门店内饰" loading="lazy">
+                    </div>
+                    <div class="image-item" onclick="togglePreview(this)">
+                        <img src="内饰1.jpg" alt="门店内饰" loading="lazy">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 添加预览遮罩层 -->
+            <div id="preview-overlay" class="preview-overlay" onclick="closePreview()">
+                <div class="preview-container">
+                    <img id="preview-image" src="" alt="预览图片">
+                </div>
+            </div>
+
             <h2>我们的服务</h2>
             <ul class="service-list">
                 <li>青少年近视防控</li>
@@ -479,15 +643,46 @@
             <h2>测试结果</h2>
             <p>您的得分：<span id="score">0</span>/9</p>
             <p>正确率：<span id="percentage">0</span>%</p>
+            
             <div id="prizeInfo"></div>
+            <img src="11.png" alt="微信二维码" class="qr-code">
             <div class="store-info">
                 <h3>嘉辰眼科-儿童视力矫正机构</h3>
                 <p>地址: 安州人民医院与绿品源酒店之间</p>
+                <div class="map-container">
+                    <img src="地址.png" alt="门店地址" class="map-image" onclick="togglePreview(this)">
+                </div>
             </div>
-            <img src="11.png" alt="微信二维码" class="qr-code">
+            
             <button class="action-btn" onclick="restartQuiz()" style="margin-top: 20px; display: none;">重新答题</button>
         </div>
     </div>
     <script src="quiz.js"></script>
+    <script>
+    // 图片预览相关函数
+    function togglePreview(element) {
+        const overlay = document.getElementById('preview-overlay');
+        const previewImage = document.getElementById('preview-image');
+        const img = element.querySelector('img');
+        
+        if (!overlay.classList.contains('active')) {
+            // 放大预览
+            previewImage.src = img.src;
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden'; // 禁止背景滚动
+        }
+    }
+
+    function closePreview() {
+        const overlay = document.getElementById('preview-overlay');
+        overlay.classList.remove('active');
+        document.body.style.overflow = ''; // 恢复背景滚动
+    }
+
+    // 阻止预览图片点击事件冒泡
+    document.getElementById('preview-image')?.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+    </script>
 </body>
 </html>
