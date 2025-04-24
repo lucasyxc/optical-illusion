@@ -272,7 +272,7 @@
             transition: width 0.3s;
         }
         .qr-code {
-            max-width: 200px;
+            max-width: 100px;
             margin: 20px auto;
             display: block;
         }
@@ -417,6 +417,145 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
+
+        /* 图片展示组件样式 */
+        .store-images {
+            margin: 20px auto;
+            padding: 0 10px;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .image-item {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .image-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.2s ease;
+        }
+
+        .image-item:active img {
+            transform: scale(0.95);
+        }
+
+        /* 预览遮罩层样式 */
+        .preview-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .preview-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .preview-container {
+            width: 90%;
+            height: 90%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .preview-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        /* 移动端优化 */
+        @media screen and (max-width: 480px) {
+            .store-images {
+                margin: 15px auto;
+                padding: 0 5px;
+            }
+
+            .image-grid {
+                gap: 5px;
+                padding: 5px;
+            }
+
+            .image-item {
+                border-radius: 6px;
+            }
+        }
+
+        .map-container {
+            margin: 15px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .map-image {
+            width: 100%;
+            display: block;
+            cursor: pointer;
+        }
+
+        .store-info {
+            margin: 20px 15px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            text-align: left;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .store-info h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .store-info p {
+            color: #666;
+            margin: 8px 0;
+            font-size: 1em;
+        }
+
+        @media screen and (max-width: 480px) {
+            .store-info {
+                margin: 15px 10px;
+                padding: 15px;
+            }
+            
+            .store-info h3 {
+                font-size: 1.1em;
+            }
+            
+            .store-info p {
+                font-size: 0.95em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -428,6 +567,31 @@
             <h2>专业的儿童视力矫正机构</h2>
             <p>我们是一家专业的眼科机构，专注于青少年视力健康，提供全方位的视力矫正服务。采用先进的诊疗技术和设备，为您的视力健康保驾护航。</p>
             
+            <!-- 添加图片展示组件 -->
+            <div class="store-images">
+                <div class="image-grid">
+                    <div class="image-item" onclick="togglePreview(this)">
+                        <img src="门头1.jpg" alt="门店外观" loading="lazy">
+                    </div>
+                    <div class="image-item" onclick="togglePreview(this)">
+                        <img src="内饰2.jpg" alt="门店内饰" loading="lazy">
+                    </div>
+                    <div class="image-item" onclick="togglePreview(this)">
+                        <img src="内饰3.jpg" alt="门店内饰" loading="lazy">
+                    </div>
+                    <div class="image-item" onclick="togglePreview(this)">
+                        <img src="内饰1.jpg" alt="门店内饰" loading="lazy">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 添加预览遮罩层 -->
+            <div id="preview-overlay" class="preview-overlay" onclick="closePreview()">
+                <div class="preview-container">
+                    <img id="preview-image" src="" alt="预览图片">
+                </div>
+            </div>
+
             <h2>我们的服务</h2>
             <ul class="service-list">
                 <li>青少年近视防控</li>
@@ -441,18 +605,19 @@
 
         <!-- 第二页：活动介绍 -->
         <div id="intro-page2" class="intro-page" style="display: none;">
-            <div class="tech-icon">🔬</div>
+            <div class="tech-icon">👁️</div>
             <div class="illusion-intro">
-                <h2>视觉错觉小知识</h2>
-                <p>视觉错觉是一种有趣的视觉现象，它展示了我们的大脑如何解读和处理视觉信息。这些错觉不仅有趣，还能帮助我们更好地理解视觉系统的运作方式。</p>
-                <p>在眼科领域，理解视觉错觉对于诊断和治疗某些视觉问题非常重要。通过研究这些错觉，我们可以更好地了解眼睛和大脑如何协同工作，从而提供更精准的视力矫正方案。</p>
+                <h2>儿童视力健康小知识</h2>
+                <p>儿童视力健康是每个家长都关心的问题。了解儿童视力发育的特点和规律，对于预防近视、保护视力至关重要。</p>
+                <p>3-4岁是儿童视力发育的关键期，此时正常视力应达到0.6-0.8。4-5岁儿童通常有150-200度的远视储备，这是预防近视的重要"防护墙"。如果远视储备过早消耗，孩子可能会提前近视。</p>
+                <p>定期进行视力检查、保持充足的户外活动时间、养成良好的用眼习惯，是保护儿童视力的三大法宝。建议每6个月进行一次专业的视力检查，及时发现并干预视力问题。</p>
             </div>
 
             <div class="quiz-rules">
                 <h2>活动规则</h2>
-                <p>1. 本测试包含10道视觉错觉题目</p>
+                <p>1. 本测试包含9道儿童视力健康知识题</p>
                 <p>2. 每题均为单选题</p>
-                <p>3. 答对7道及以上题目可获得精美奖品</p>
+                <p>3. 答对6道及以上题目可获得精美奖品</p>
                 <p>4. 完成测试后请保存兑奖号码，到店出示即可领取奖品</p>
             </div>
 
@@ -476,17 +641,48 @@
         <!-- 结果页面 -->
         <div class="result" id="result">
             <h2>测试结果</h2>
-            <p>您的得分：<span id="score">0</span>/10</p>
+            <p>您的得分：<span id="score">0</span>/9</p>
             <p>正确率：<span id="percentage">0</span>%</p>
+            
             <div id="prizeInfo"></div>
+            <img src="11.png" alt="微信二维码" class="qr-code">
             <div class="store-info">
                 <h3>嘉辰眼科-儿童视力矫正机构</h3>
                 <p>地址: 安州人民医院与绿品源酒店之间</p>
+                <div class="map-container">
+                    <img src="地址.png" alt="门店地址" class="map-image" onclick="togglePreview(this)">
+                </div>
             </div>
-            <img src="11.png" alt="微信二维码" class="qr-code">
-            <button class="action-btn" onclick="restartQuiz()" style="margin-top: 20px; display: 1;">重新答题</button>
+            
+            <button class="action-btn" onclick="restartQuiz()" style="margin-top: 20px; display: none;">重新答题</button>
         </div>
     </div>
     <script src="quiz.js"></script>
+    <script>
+    // 图片预览相关函数
+    function togglePreview(element) {
+        const overlay = document.getElementById('preview-overlay');
+        const previewImage = document.getElementById('preview-image');
+        const img = element.querySelector('img');
+        
+        if (!overlay.classList.contains('active')) {
+            // 放大预览
+            previewImage.src = img.src;
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden'; // 禁止背景滚动
+        }
+    }
+
+    function closePreview() {
+        const overlay = document.getElementById('preview-overlay');
+        overlay.classList.remove('active');
+        document.body.style.overflow = ''; // 恢复背景滚动
+    }
+
+    // 阻止预览图片点击事件冒泡
+    document.getElementById('preview-image')?.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+    </script>
 </body>
 </html>
